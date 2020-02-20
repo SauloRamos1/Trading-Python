@@ -10,6 +10,25 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import matplotlib.dates as dates
 
+# import time
+# from selenium import webdriver
+# import os
+
+# chromedriver_path = os.getcwd()
+# url = http://www.b3.com.br/pt_br/market-data-e-indices/indices/indices-amplos/indice-ibovespa-ibovespa-composicao-da-carteira.htm
+
+import openpyxl
+data = openpyxl.load_workbook('2020.02.19 Ibovespa.xlsx')
+sheet = data.active
+
+for row in sheet:
+    sheet.append(row)
+
+acoes = []
+for row in sheet.iter_rows(min_row=2, min_col=1, max_row=74, max_col=1): # da linha 2 até 74 numéro total no arquivo xlsx
+    for cell in row:
+        acoes.append(cell.value + ".SA")
+        
 
 #sh = book.sheet_by_index(0)
 #print(sh.name, sh.nrows, sh.ncols)
@@ -17,23 +36,20 @@ import matplotlib.dates as dates
 #for rx in range(sh.nrows):
 #    print(sh.row(rx))
 
-dframe = pd.read_csv("/home/sauloramos/Documents/Trading/listadecodigos.csv", usecols=[0])
+#dframe = pd.read_csv("/home/sauloramos/Documents/Trading/listadecodigos.csv", usecols=[0])
 #print (df)
-lt = dframe.values.tolist()
+#lt = dframe.values.tolist()
 
 #start = dt.datetime.now() - dt.timedelta(days=10*365)
 start = dt.datetime.now() - dt.timedelta(days=30)
 end = dt.datetime.now() #- dt.timedelta(days=1)
 print (end)
-print (lt)
-
-listofdf = []
+print (acoes)
 
 melhoresacoes = []
 lucro = []
 
-
-for i in lt:
+for i in acoes:
 
     print ("---------------- ", i, " --------------" )
     #Get the stock quote
@@ -90,8 +106,10 @@ for i in lt:
     print ("Media da Previsao: ", media_previsao)
 
     if (media_previsao > x_forecast[len(x_forecast)-1]):
-        melhoresacoes.append(i)
-        lucro.append(media_previsao / x_forecast[len(x_forecast)-1])
+        n_list = [i, [media_previsao / x_forecast[len(x_forecast)-1]]]
+        melhoresacoes.append(n_list)
+        # melhoresacoes.append(i)
+        # lucro.append(media_previsao / x_forecast[len(x_forecast)-1])
 
 
 
@@ -122,8 +140,13 @@ for i in lt:
     # plt.pause(0.2)
     # plt.close()
 
+def takeSecond(elem):
+    return elem[1]
+
+melhoresacoes.sort(key=takeSecond, reverse=True)
+
 for i in range(0,len(melhoresacoes)):
-    print ("--- Acao: ", melhoresacoes[i], "---- LUCRO", lucro[i])
+    print (melhoresacoes[i])
 
 #Visualize the closing price history
 
